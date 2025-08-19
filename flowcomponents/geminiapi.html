@@ -1,0 +1,109 @@
+<script total>
+
+	exports.id = 'geminiapi';
+	exports.name = 'Gemini API';
+	exports.icon = 'ti ti-google';
+	exports.author = 'Pavol Danko';
+	exports.version = '1';
+	exports.group = 'Services';
+	exports.config = { apikey: '', model: 'gemini-1.5-flash', output: 'all'};
+	exports.inputs = [{ id: 'input', name: 'Input' }];
+	exports.outputs = [{ id: 'output', name: 'Output' }, { id: 'error', name: 'Error' }];
+
+	exports.make = function(instance, config) {
+
+		instance.message = function($) {
+			var data = $.data;
+
+			if (!data) {
+				$.send('error', 'Input data are missing');
+				return;
+			}
+
+			if (!config.apikey) {
+				$.send('error', 'You have to configure api key');
+				return;
+			}
+
+			if (data.text)
+				data = data.text;
+
+			if (typeof data !== 'string') {
+				$.send('error', 'Error: Wrong input format');
+				return;
+			}
+
+			var obj = {};
+			obj.contents = [];
+
+			var messageParts = [];
+
+			messageParts.push({ text: data });
+
+			var content = {
+				parts: messageParts
+			};
+
+			obj.contents.push(content);
+
+			RESTBuilder.POST('https://generativelanguage.googleapis.com/v1beta/models/{0}:generateContent?key={1}'.format(config.model, config.apikey), obj).header('Content-Type', 'application/json').timeout(60000).callback(function(err, response) {
+				if (err) {
+					$.send('error', err);
+					return;
+				}
+
+				if (config.output === 'text' && response && response.candidates && response.candidates.length > 0 && response.candidates[0].content && response.candidates[0].content.parts && response.candidates[0].content.parts.length > 0) {
+					var textOutput = response.candidates[0].content.parts[0]?.text || '';
+					$.send('output', textOutput);
+				} else {
+					$.send('output', response);
+				}
+			});
+		};
+
+	};
+
+</script>
+
+<readme>
+This component communicates with the Google Gemini API with text inputs and outputs.
+
+Input:
+
+// Object input format for Google Gemini API:
+{
+    text: String
+}
+
+// Or
+
+text: String
+For output, you can choose if you need the full response object from Gemini or only the extracted output text.
+</readme>
+
+<settings>
+	<div class="padding">
+		<div class="m">
+			<ui-component name="input" path="?.apikey" config="camouflage:1;requred:1">API key</ui-component>
+			<div class="help"><a href="https://aistudio.google.com/app/apikey" target="_blank"><i class="ti ti-external"></i>Generate Gemini API key</a></div>
+		</div>
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.model" config="dirsource:gemini-pro|Gemini Pro,gemini-1.5-flash|Gemini 1.5 Flash,gemini-1.5-pro|Gemini 1.5 Pro">Gemini model</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.output" config="dirsource:all|Full response,text|Only output text">Output type</ui-component>
+			</div>
+		</div>
+	</div>
+</settings>
+
+<style>
+	.CLASS footer { padding: 10px; font-size: 12px; }
+</style>
+
+<body>
+	<header>
+		<i class="$ICON"></i>$NAME
+	</header>
+</body>
