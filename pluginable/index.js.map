@@ -1,0 +1,174 @@
+{
+	"routes": [
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "admin_read",
+			"name": "Read admin profile"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "admin_save",
+			"input": "*name,*login,password",
+			"name": "Save admin profile"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "logout",
+			"name": "Logout"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 2,
+			"id": "login",
+			"input": "*login,*password",
+			"name": "Login"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "Users|list"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "Users|read",
+			"input": "*id:UID"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "Users|create",
+			"input": "*firstname:string,*lastname:string,email:email,phone:phone,issuper:boolean"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "Users|update",
+			"input": "*id:UID,@Users"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "Users|remove",
+			"input": "*id:UID"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "account"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "settings_read",
+			"name": "Read settings"
+		},
+		{
+			"method": "API",
+			"url": "/admin/",
+			"auth": 1,
+			"id": "settings_save",
+			"input": "name:String, url:URL, icon:String, $tms:Boolean, secret_tms:String, op_reqtoken:String, op_restoken:String, totalapi:String, items:[*id:String, value:Object]",
+			"name": "Save settings"
+		},
+		{
+			"method": "POST",
+			"url": "/admin/upload/",
+			"auth": 1,
+			"upload": true,
+			"limit": 104857600
+		},
+		{
+			"method": "GET",
+			"url": "/admin/*",
+			"auth": 1
+		},
+		{
+			"method": "GET",
+			"url": "/admin/*",
+			"auth": 2
+		}
+	],
+	"plugins": [
+		{
+			"id": "admin",
+			"name": "@(Admin)"
+		},
+		{
+			"id": "registration",
+			"name": "@(Registration)",
+			"permissions": "registration"
+		},
+		{
+			"id": "settings",
+			"name": "@(Settings)",
+			"permissions": "settings"
+		}
+	],
+	"actions": [
+		{
+			"name": "Admin/read"
+		},
+		{
+			"name": "Admin/save",
+			"input": "*name,*login,password"
+		},
+		{
+			"name": "Admin/login",
+			"input": "*login,*password"
+		},
+		{
+			"name": "Admin/logout"
+		},
+		{
+			"name": "Users|list",
+			"permissions": "registration"
+		},
+		{
+			"name": "Users|read",
+			"input": "*id:UID",
+			"permissions": "registration"
+		},
+		{
+			"name": "Users|create",
+			"input": "*firstname:string,*lastname:string,email:email,phone:phone,issuper:boolean",
+			"permissions": "registration"
+		},
+		{
+			"name": "Users|update",
+			"input": "*id:UID,@Users",
+			"permissions": "registration"
+		},
+		{
+			"name": "Users|remove",
+			"input": "*id:UID",
+			"permissions": "registration"
+		},
+		{
+			"name": "Settings/read",
+			"permissions": "settings"
+		},
+		{
+			"name": "Settings/save",
+			"input": "name:String, url:URL, icon:String, $tms:Boolean, secret_tms:String, op_reqtoken:String, op_restoken:String, totalapi:String, items:[*id:String, value:Object]",
+			"permissions": "settings"
+		},
+		{
+			"name": "Settings/account"
+		}
+	]
+}

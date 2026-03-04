@@ -1,0 +1,66 @@
+<ui-plugin config="aclass:1">
+	<div class="toolbar pin">
+		<ui-bind path="?.checked" config="enabled .D:value && value.length">
+			<button class="exec" data-exec="?/create"><i class="ti ti-plus-circle green mr5"></i>@(Create)</button>
+			<button class="exec D" data-exec="?/remove"><i class="ti ti-remove red mr5"></i>@(Remove)</button>
+			<button class="exec" data-exec="?/refresh"><i class="ti ti-sync mr5"></i>@(Refresh)</button>
+		</ui-bind>
+	</div>
+
+	<ui-component name="datagrid" path="?.grid" config="margin:[margin];height:window;exec:?/filter;click:?/edit;noborder:1;checkbox:1;checked:?.checked" class="invisible">
+		<script type="text/plain">
+			[
+				{ name: 'id', text: '@(ID)', width: 120, monospace: 1, align: 1, hide: true },
+				{ name: 'firstname', text: '@(First name)', width: 150 },
+				{ name: 'lastname', text: '@(Last name)', width: 150 },
+				{ name: 'email', text: '@(Email)', type: 'email', width: 250 },
+				{ name: 'phone', text: '@(Phone number)', type: 'phone' },
+				{ name: 'issuper', text: '@(Super)', type: 'boolean' },
+				{ name: 'dtcreated', text: '@(Created)', width: 130, align: 1, template: '{{ dtrevision | format(\'[date]\') }}' },
+				{ name: 'updatedby', text: '@(Updated by)', width: 150 },
+				{ name: 'dtupdated', text: '@(Updated)', width: 180, align: 1, template: '{{ dtupdated | format(\'[ts]\') }}' }
+			]
+		</script>
+	</ui-component>
+</ui-plugin>
+
+<ui-component name="importer" path="*form" config="if:formdetail;url:/~ID~/forms/detail.html"></ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			BREADCRUMB.add('@(Registration)', NAV.url);
+			exports.refresh();
+		};
+
+		exports.filter = function(type, filter, sort, page) {
+			if (!filter)
+				filter = {};
+			filter.page = page;
+			filter.sort = sort;
+			exports.tapi(QUERIFY('Users|list', filter) + ' ERROR @showloading', 'grid @hideloading');
+			// isloaded = true;
+		};
+
+		exports.refresh = function(el) {
+			if (el instanceof jQuery)
+				el.find('i').aclass('ti-spin').rclass('ti-spin', 1000);
+
+			exports.nul('grid');
+		};
+
+		exports.create = function() {
+			SET('formdetail @default', {});
+			SET('*form', 'formdetail');
+		};
+
+		exports.edit = function(row) {
+			exports.tapi('Users|read @showloading ERROR', { id: row.id }, function(response) {
+				SET('formdetail', response);
+				SET('*form @hideloading', 'formdetail');
+			});
+		};
+
+	});
+</script>

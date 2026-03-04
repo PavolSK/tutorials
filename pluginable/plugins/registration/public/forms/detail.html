@@ -1,0 +1,89 @@
+<ui-component name="box" path="*form" config="if:CLASS;icon:ti ti-user;autofocus:true;reload:?/reload;scrollbar:1;width:650;hide:?/hide;closeesc:1;submit:?/submit" class="hidden CLASS" plugin="CLASS">
+
+	<nav>
+		<ui-bind path="?.id" config="visible:value">
+			<button class="exec" data-exec="?/options"><i class="ti ti-angle-down"></i>Menu</button>
+		</ui-bind>
+	</nav>
+
+
+	<div class="padding">
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.firstname" config="required:1;placeholder:@(First name)">First name</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.lastname" config="required:1;placeholder:@(Last name)">Last name</ui-component>
+			</div>
+		</div>
+		<div class="grid-2">
+			<div class="m">
+				<ui-component name="input" path="?.email" config="type:email;placeholder:@(Email)">Email</ui-component>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.phone" config="type:phone;placeholder:@(Phonenumber)">Phonenumber</ui-component>
+			</div>
+		</div>
+		<div class="m">
+			<ui-component name="input" path="?.issuper" config="type:checkbox">Is super</ui-component>
+		</div>
+	</div>
+
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit">@(Submit)</button>
+			<button name="cancel">@(Close)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(com) {
+			var model = exports.model;
+			com.reconfigure({ title: model.id ? '@(Update user)' : '@(Create user)' });
+			caller = exports.caller;
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.model;
+			exports.tapi('Users|{0} ERROR'.format(model.id ? 'update' : 'create'), model, function() {
+				SETTER('notify/success @hideloading', model.id ? '@(User was succesfully updated.)' : '@(User was succesfully created.)');
+				caller.exec('refresh');
+				hide();
+			});
+		};
+
+		exports.options = function(el) {
+
+			var model = exports.model;
+
+			var opt = {};
+			opt.element = el;
+			opt.align = 'right';
+
+			opt.items = [];
+			opt.items.push({ id: 'rem', name: 'Vymazať', icon: 'ti ti-trash red' });
+
+			opt.callback = function(item) {
+				switch (item.id) {
+					case 'rem':
+						SETTER('approve/show', 'Naozaj chcete vymazať túto otázku?', '"ti ti-trash" Vymazať', function() {
+							exports.tapi('Users|remove @showloading ERROR', { id: model.id }, function() {
+								caller.exec('refresh');
+								NULL('*form');
+							});
+						});
+						break;
+				}
+			};
+			SETTER('menu/show', opt);
+		};
+
+	});
+
+</script>
